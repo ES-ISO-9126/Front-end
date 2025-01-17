@@ -20,7 +20,7 @@ class List extends HTMLElement {
               src="fig/White and Blue Modern Library Logo.png"
               alt="Logomarca"
               class="img-fluid mb-3"
-              style="max-width: 200px;"
+              style="max-width: 250px; height: auto; max-width: 200px"
             />
             <h1 class="h5">Sistema de Gestão de Acervo Acadêmico</h1>
           </header>
