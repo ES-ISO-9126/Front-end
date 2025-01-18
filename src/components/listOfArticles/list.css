@@ -16,6 +16,9 @@
   }
   
   .list-container {
+    margin: 0 auto;
+    max-width: 100%; /* Permita que o contêiner use toda a largura disponível */
+    padding: 10px;
     display: flex;
     flex-direction: column;
     gap: 1rem;
@@ -35,5 +38,18 @@
   h5.card-title {
     font-size: 1.1rem;
     font-weight: bold;
+  }
+  .card {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%; /* Faz o card ocupar todo o espaço disponível */
+    max-width: 100%; /* Garante que respeite os limites do contêiner */
+  }
+  #list {
+    height: 400px;
+    overflow-y: auto;
+    margin: 0 auto; /* Centraliza o conteúdo */
+    padding: 10px; /* Adiciona um espaço interno para estética */
   }
   
