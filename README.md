@@ -19,7 +19,7 @@ Utilização de componentes para divisão de funcionalidades/partes do sistema, 
 
 > Definimos por componente uma parte que compõe o software.
 
-![Exemplo de estrutura em componentes](fig\image.png) 
+![Exemplo de estrutura em componentes](fig/image.png) 
 
 ## Portabilidade
 > Utilizando uma plataforma de *deploy*, a cada alteração realizada, será refletida no software em ambiente de produção. 
