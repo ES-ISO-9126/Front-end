@@ -1,6 +1,9 @@
 class List extends HTMLElement {
   shadow = this.attachShadow({ mode: "open" });
-
+  listElements = []
+  listAux = []
+  start = 0
+  end = 39
   constructor() {
     super();
 
@@ -10,6 +13,7 @@ class List extends HTMLElement {
       "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
     );
     this.fetchAndDisplayData();
+    this.addInfiniteScrollListener()
   }
 
   createHTML() {
@@ -17,10 +21,10 @@ class List extends HTMLElement {
         <div class="container mt-4">
           <header class="text-center mb-4">
             <img
-              src="fig/White and Blue Modern Library Logo.png"
+              src="fig/image_logo.png"
               alt="Logomarca"
               class="img-fluid mb-3"
-              style="max-width: 250px; height: auto; max-width: 200px"
+              style="max-width: 250px; height: 100px; max-width: 200px"
             />
             <h1 class="h5">Sistema de Gestão de Acervo Acadêmico</h1>
           </header>
@@ -62,28 +66,47 @@ class List extends HTMLElement {
   }
 
   fetchAndDisplayData() {
+    if(this.listElements.length !== 0){
+      return
+    }
     const listContainer = this.shadow.querySelector("#list");
     const searchInput = this.shadow.querySelector("#search");
 
     fetch("https://jsonplaceholder.typicode.com/comments")
       .then((response) => response.json())
       .then((data) => {
-        this.displayItems(data, listContainer);
+        console.log(data)
+        this.listElements = data
+        for(let i = this.start ; i <= this.end ; i++){
+            this.listAux.push(this.listElements[i])
+        }
+        this.start = this.end + 1
+        this.end = this.end + 40
 
-        searchInput.addEventListener("input", () => {
-          const filtered = data.filter(
-            (item) =>
-              item.email
-                .toLowerCase()
-                .includes(searchInput.value.toLowerCase()) ||
-              item.name
-                .toLowerCase()
-                .includes(searchInput.value.toLowerCase()) ||
-              item.body.toLowerCase().includes(searchInput.value.toLowerCase())
-          );
-          this.displayItems(filtered, listContainer);
-        });
-      });
+        const filtered = this.filterDatas(this.listAux)
+        this.displayItems(filtered, listContainer);
+
+      //   searchInput.addEventListener("input", () => {
+      //     const filtered = this.filterDatas(this.listAux)
+      //     console.log("filtered ", filtered)
+      //    this.displayItems(filtered, listContainer);
+      //   });
+       });
+
+  }
+
+  filterDatas(data){
+    const filtered = data.map(
+      (item) => {
+         item.email = item.email
+         item.name = String(item.name).charAt(0).toUpperCase() + String(item.name).toLowerCase().slice(1)
+         item.body = String(item.body).charAt(0).toUpperCase() + String(item.body).toLowerCase().slice(1)
+        return item
+      }
+        // arcos => Marcos
+       
+    );
+    return filtered
   }
 
   displayItems(items, container) {
@@ -114,6 +137,33 @@ class List extends HTMLElement {
       card.appendChild(cardBody);
       container.appendChild(card);
     });
+  }
+
+  addInfiniteScrollListener() {
+
+    const wrap = this.shadow.querySelector("#list");
+    wrap.addEventListener("scroll", () => {
+      if (
+        wrap.scrollTop + wrap.clientHeight >=
+        wrap.scrollHeight - 10
+      ) {
+        if(this.listAux.length > 500){
+          return
+        }
+        for(let i = this.start ; i <= this.end ; i++){
+          this.listAux.push(this.listElements[i])
+        }
+        this.start = this.end + 1
+        this.end = this.end + 40
+        
+        const listContainer = this.shadow.querySelector("#list");
+        const filtered = this.filterDatas(this.listAux)
+        this.displayItems(filtered, listContainer);
+
+      }
+    });
+
+    
   }
 }
 
