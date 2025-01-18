@@ -4,6 +4,8 @@ class List extends HTMLElement {
   listAux = [];
   start = 0;
   end = 39;
+  filterOption = 1;
+
   constructor() {
     super();
 
@@ -40,37 +42,38 @@ class List extends HTMLElement {
       />
     </div>
     <div class="filters ms-4 d-flex">
-      <div class="form-check me-3">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault1"
-        />
-        <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
-      </div>
-      <div class="form-check me-3">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault2"
-          checked
-        />
-        <label class="form-check-label" for="flexRadioDefault2">Título</label>
-      </div>
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault3"
-        />
-        <label class="form-check-label" for="flexRadioDefault3"
-          >Descrição</label
-        >
-      </div>
-    </div>
+  <div class="form-check me-3">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="flexRadioDefault"
+      id="flexRadioDefault1"
+      value="1"
+    />
+    <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
+  </div>
+  <div class="form-check me-3">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="flexRadioDefault"
+      id="flexRadioDefault2"
+      value="2"
+      checked
+    />
+    <label class="form-check-label" for="flexRadioDefault2">Título</label>
+  </div>
+  <div class="form-check">
+    <input
+      class="form-check-input"
+      type="radio"
+      name="flexRadioDefault"
+      id="flexRadioDefault3"
+      value="3"
+    />
+    <label class="form-check-label" for="flexRadioDefault3">Descrição</label>
+  </div>
+</div>
   </div>
 
   <div id="list" class="list-container">
@@ -106,37 +109,47 @@ class List extends HTMLElement {
     const listContainer = this.shadow.querySelector("#list");
     const searchInput = this.shadow.querySelector("#search");
 
+    const radioButtons = this.shadow.querySelectorAll(
+      'input[name="flexRadioDefault"]'
+    );
+    radioButtons.forEach((radio) => {
+      radio.addEventListener("change", (event) => {
+        this.filterOption = parseInt(event.target.value, 10);
+        console.log("Filtro atualizado para:", this.filterOption);
+      });
+    });
+
     fetch("https://jsonplaceholder.typicode.com/comments")
       .then((response) => response.json())
       .then((data) => {
         console.log(data);
         this.listElements = data;
 
-        // Inicializar os itens visíveis
         for (let i = this.start; i <= this.end; i++) {
           this.listAux.push(this.listElements[i]);
         }
         this.start = this.end + 1;
         this.end = this.end + 40;
 
-        // Exibir os itens iniciais
         this.displayItems(this.listAux, listContainer);
 
-        // Adicionar evento de pesquisa
         searchInput.addEventListener("input", () => {
           const searchValue = searchInput.value.toLowerCase();
+          console.log("Valor da pesquisa:", searchValue);
 
-          // Filtrar os elementos com base na pesquisa
           const filtered = this.listElements.filter((item) => {
-            return (
-              item.email.toLowerCase().includes(searchValue) ||
-              item.name.toLowerCase().includes(searchValue) ||
-              item.body.toLowerCase().includes(searchValue)
-            );
+            if (this.filterOption === 1) {
+              return item.email.toLowerCase().includes(searchValue);
+            } else if (this.filterOption === 2) {
+              return item.name.toLowerCase().includes(searchValue);
+            } else if (this.filterOption === 3) {
+              return item.body.toLowerCase().includes(searchValue);
+            }
           });
 
-          // Exibir somente os itens filtrados
-          const visibleItems = filtered.slice(0, this.listAux.length);
+          console.log("Itens filtrados:", filtered);
+
+          const visibleItems = filtered.slice(0, this.start);
           this.displayItems(visibleItems, listContainer);
         });
       });
@@ -154,7 +167,7 @@ class List extends HTMLElement {
           String(item.body).toLowerCase().slice(1);
         return item;
       }
-      // arcos => Marcos
+      // marcos => Marcos
     );
     return filtered;
   }
