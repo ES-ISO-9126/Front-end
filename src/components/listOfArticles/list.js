@@ -5,6 +5,7 @@ class List extends HTMLElement {
   start = 0;
   end = 39;
   filterOption = 2;
+  searchValue 
 
   constructor() {
     super();
@@ -16,6 +17,14 @@ class List extends HTMLElement {
     );
     this.fetchAndDisplayData();
     this.addInfiniteScrollListener();
+    const searchInput = this.shadow.querySelector("#search");
+    searchInput.addEventListener("input", () => {
+      const searchValue = searchInput.value.toLowerCase();
+      this.searchValue = searchValue
+      
+      this.searchWords()
+
+    });
   }
 
   createHTML() {
@@ -106,7 +115,7 @@ class List extends HTMLElement {
       return;
     }
     const listContainer = this.shadow.querySelector("#list");
-    const searchInput = this.shadow.querySelector("#search");
+    
 
     const radioButtons = this.shadow.querySelectorAll(
       'input[name="flexRadioDefault"]'
@@ -114,7 +123,7 @@ class List extends HTMLElement {
     radioButtons.forEach((radio) => {
       radio.addEventListener("change", (event) => {
         this.filterOption = parseInt(event.target.value, 10);
-        console.log("Filtro atualizado para:", this.filterOption);
+        this.clearInput()
       });
     });
 
@@ -126,71 +135,82 @@ class List extends HTMLElement {
           this.shadow.querySelector("#list").style.height = "0px";
           return;
         }
-        console.log(data);
         this.listElements = data;
 
-        for (let i = this.start; i <= this.end; i++) {
-          this.listAux.push(this.listElements[i]);
-        }
-        this.start = this.end + 1;
-        this.end = this.end + 40;
-
+        
+        this.insertMoreItems()
         this.displayItems(this.listAux, listContainer);
 
-        searchInput.addEventListener("input", () => {
-          const searchValue = searchInput.value.toLowerCase();
-          console.log("Valor da pesquisa:", searchValue);
 
-          const searchValueLower = searchValue.toLowerCase();
-          const regex = new RegExp(`(${searchValueLower})`, 'gi');
 
-          const filtered = this.listElements.filter((item) => {
-            if (this.filterOption === 1) {
-              return item.email.toLowerCase().includes(searchValue);
-            } else if (this.filterOption === 2) {
-              return item.name.toLowerCase().includes(searchValue);
-            } else if (this.filterOption === 3) {
-              return item.body.toLowerCase().includes(searchValue);
-            }
-            return false
-          })
-            .map((item) => {
-              if (this.filterOption === 1) {
-                return {
-                  email: item.email.replace(regex, '<span class="highlight">$1</span>'),
-                  name: item.name,
-                  body: item.body
-                };
-
-              } else if (this.filterOption === 2) {
-                return {
-                  email: item.email,
-                  name: item.name.replace(regex, '<span class="highlight">$1</span>'),
-                  body: item.body
-                };
-              } else if (this.filterOption === 3) {
-                return {
-                  email: item.email,
-                  name: item.name,
-                  body: item.body.replace(regex, '<span class="highlight">$1</span>'),
-                };
-              }
-
-            });
-
-          console.log("Itens filtrados:", filtered);
-
-          const visibleItems = filtered.slice(0, this.start);
-          this.displayItems(visibleItems, listContainer);
-          if (visibleItems.length == 0) {
-            this.shadow.querySelector("#messageSearch").style.display = "flex";
-            this.shadow.querySelector("#list").style.height = "0px";
-          } else {
-            this.shadow.querySelector("#messageSearch").style.display = "none";
-            this.shadow.querySelector("#list").style.height = "400px";
-          }
-        });
       });
+  }
+
+  insertMoreItems(){
+    for (let i = this.start; i <= this.end; i++) {
+      this.listAux.push(this.listElements[i]);
+    }
+    this.start = this.end + 1;
+    this.end = this.end + 40;
+  }
+
+  searchWords() {
+    const listContainer = this.shadow.querySelector("#list");
+    const searchValueLower = this.searchValue.toLowerCase();
+    const regex = new RegExp(`(${searchValueLower})`, 'gi');
+
+    const filtered = this.listElements.filter((item) => {
+      if (this.filterOption === 1) {
+        return item.email.toLowerCase().includes(this.searchValue);
+      } else if (this.filterOption === 2) {
+        return item.name.toLowerCase().includes(this.searchValue);
+      } else if (this.filterOption === 3) {
+        return item.body.toLowerCase().includes(this.searchValue);
+      }
+      return false
+    })
+      .map((item) => {
+        
+        if (this.filterOption === 1) {
+          return {
+            email: item.email.replace(regex, '<span class="highlight">$1</span>'),
+            name: item.name,
+            body: item.body
+          };
+
+        } else if (this.filterOption === 2) {
+          return {
+            email: item.email,
+            name: item.name.replace(regex, '<span class="highlight">$1</span>'),
+            body: item.body
+          };
+        } else if (this.filterOption === 3) {
+          return {
+            email: item.email,
+            name: item.name,
+            body: item.body.replace(regex, '<span class="highlight">$1</span>'),
+          };
+        }
+
+      });
+
+
+    const visibleItems = filtered.slice(0, this.start);
+    this.displayItems(visibleItems, listContainer);
+
+    if (visibleItems.length == 0) {
+      this.shadow.querySelector("#messageSearch").style.display = "flex";
+      this.shadow.querySelector("#list").style.height = "0px";
+    } else {
+      this.shadow.querySelector("#messageSearch").style.display = "none";
+      this.shadow.querySelector("#list").style.height = "400px";
+    }
+  }
+
+  clearInput(){
+    this.shadow.querySelector("#search").value = ""
+    this.searchValue = ""
+    this.searchWords()
   }
 
   filterDatas(data) {
@@ -245,15 +265,12 @@ class List extends HTMLElement {
         if (this.listAux.length > 500) {
           return;
         }
-        for (let i = this.start; i <= this.end; i++) {
-          this.listAux.push(this.listElements[i]);
-        }
-        this.start = this.end + 1;
-        this.end = this.end + 40;
+        this.insertMoreItems()
 
         const listContainer = this.shadow.querySelector("#list");
         const filtered = this.filterDatas(this.listAux);
         this.displayItems(filtered, listContainer);
+        this.searchWords()
       }
     });
   }
