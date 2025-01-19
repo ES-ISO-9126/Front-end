@@ -165,8 +165,37 @@ class List extends HTMLElement {
       } else if (this.filterOption === 3) {
         return item.body.toLowerCase().includes(searchValueLower);
       }
-      return false;
+      return false
+    })
+    .map((item) => {
+        
+      if (this.filterOption === 1) {
+        return {
+          email: item.email.replace(regex, '<span class="highlight">$1</span>'),
+          name: item.name,
+          body: item.body
+        };
+
+      } else if (this.filterOption === 2) {
+        return {
+          email: item.email,
+          name: item.name.replace(regex, '<span class="highlight">$1</span>'),
+          body: item.body
+        };
+      } else if (this.filterOption === 3) {
+        return {
+          email: item.email,
+          name: item.name,
+          body: item.body.replace(regex, '<span class="highlight">$1</span>'),
+        };
+      }
+
     });
+   
+      console.log("filtered ", filtered)
+      filtered.forEach((item) => {
+        console.log("item ", item.body)
+      });
 
     console.log("filtered ", filtered);
     filtered.forEach((item) => {
