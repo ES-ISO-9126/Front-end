@@ -4,7 +4,7 @@ class List extends HTMLElement {
   listAux = [];
   start = 0;
   end = 39;
-  filterOption = 1;
+  filterOption = 2;
 
   constructor() {
     super();
@@ -20,17 +20,7 @@ class List extends HTMLElement {
 
   createHTML() {
     const template = `
-        <div class="container mt-4">
-  <header class="text-center mb-4">
-    <img
-      src="fig/image_logo.png"
-      alt="Logomarca"
-      class="img-fluid mb-3"
-      style="max-width: 250px; height: 100px; max-width: 200px"
-    />
-    <h1 class="h5">Sistema de Gestão de Acervo Acadêmico</h1>
-  </header>
-
+       <div class="container mt-4">
   <div class="search-and-filters d-flex align-items-center mb-4">
     <div class="search-bar">
       <input
@@ -42,44 +32,53 @@ class List extends HTMLElement {
       />
     </div>
     <div class="filters ms-4 d-flex">
-  <div class="form-check me-3">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="flexRadioDefault"
-      id="flexRadioDefault1"
-      value="1"
-    />
-    <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
-  </div>
-  <div class="form-check me-3">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="flexRadioDefault"
-      id="flexRadioDefault2"
-      value="2"
-      checked
-    />
-    <label class="form-check-label" for="flexRadioDefault2">Título</label>
-  </div>
-  <div class="form-check">
-    <input
-      class="form-check-input"
-      type="radio"
-      name="flexRadioDefault"
-      id="flexRadioDefault3"
-      value="3"
-    />
-    <label class="form-check-label" for="flexRadioDefault3">Descrição</label>
-  </div>
-</div>
+      <div class="form-check me-3">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="flexRadioDefault"
+          id="flexRadioDefault1"
+          value="1"
+        />
+        <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
+      </div>
+      <div class="form-check me-3">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="flexRadioDefault"
+          id="flexRadioDefault2"
+          value="2"
+          checked
+        />
+        <label class="form-check-label" for="flexRadioDefault2">Título</label>
+      </div>
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="radio"
+          name="flexRadioDefault"
+          id="flexRadioDefault3"
+          value="3"
+        />
+        <label class="form-check-label" for="flexRadioDefault3"
+          >Descrição</label
+        >
+      </div>
+    </div>
   </div>
 
   <div id="list" class="list-container">
     <!-- Items will be dynamically added here -->
   </div>
+  <div class="messageError">
+      <h3 id="messageData">
+        Houve falha ao buscar os dados. Tente novamente mais tarde.
+      </h3>
+      <h3 id="messageSearch">Nenhum item encontrado.</h3>
+    </div>
 </div>
+
       `;
 
     const componentRoot = document.createElement("div");
@@ -122,6 +121,11 @@ class List extends HTMLElement {
     fetch("https://jsonplaceholder.typicode.com/comments")
       .then((response) => response.json())
       .then((data) => {
+        if (Object.keys(data).length === 0) {
+          this.shadow.querySelector("#messageData").style.display = "flex";
+          this.shadow.querySelector("#list").style.height = "0px";
+          return;
+        }
         console.log(data);
         this.listElements = data;
 
@@ -151,24 +155,28 @@ class List extends HTMLElement {
 
           const visibleItems = filtered.slice(0, this.start);
           this.displayItems(visibleItems, listContainer);
+          if (visibleItems.length == 0) {
+            this.shadow.querySelector("#messageSearch").style.display = "flex";
+            this.shadow.querySelector("#list").style.height = "0px";
+          } else {
+            this.shadow.querySelector("#messageSearch").style.display = "none";
+            this.shadow.querySelector("#list").style.height = "400px";
+          }
         });
       });
   }
 
   filterDatas(data) {
-    const filtered = data.map(
-      (item) => {
-        item.email = item.email;
-        item.name =
-          String(item.name).charAt(0).toUpperCase() +
-          String(item.name).toLowerCase().slice(1);
-        item.body =
-          String(item.body).charAt(0).toUpperCase() +
-          String(item.body).toLowerCase().slice(1);
-        return item;
-      }
-      // marcos => Marcos
-    );
+    const filtered = data.map((item) => {
+      item.email = item.email;
+      item.name =
+        String(item.name).charAt(0).toUpperCase() +
+        String(item.name).toLowerCase().slice(1);
+      item.body =
+        String(item.body).charAt(0).toUpperCase() +
+        String(item.body).toLowerCase().slice(1);
+      return item;
+    });
     return filtered;
   }
 

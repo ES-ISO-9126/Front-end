@@ -73,7 +73,20 @@ h5.card-title {
 .form-check-label {
   margin-left: 5px;
 }
+.messageError {
+  align-items: center;
+  color: #ff4848;
+  display: flex;
+  justify-content: center;
+}
 
+#messageData {
+  display: none;
+}
+
+#messageSearch {
+  display: none;
+}
 @media (max-width: 766px) {
   .search-and-filters {
     flex-direction: column;
