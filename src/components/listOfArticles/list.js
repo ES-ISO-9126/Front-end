@@ -85,9 +85,7 @@ class List extends HTMLElement {
     const listContainer = this.shadow.querySelector("#list");
     
 
-    const radioButtons = this.shadow.querySelectorAll(
-      'input[name="flexRadioDefault"]'
-    );
+    const radioButtons = this.shadow.querySelectorAll('input[name="flexRadioDefault"]');
     radioButtons.forEach((radio) => {
       radio.addEventListener("change", (event) => {
         this.filterOption = parseInt(event.target.value, 10);
@@ -98,21 +96,21 @@ class List extends HTMLElement {
     fetch("https://jsonplaceholder.typicode.com/comments")
       .then((response) => response.json())
       .then((data) => {
+
         if (Object.keys(data).length === 0) {
           this.shadow.querySelector("#messageData").style.display = "flex";
           this.shadow.querySelector("#list").style.height = "0px";
           return;
         }
+
         this.listElements = data.map((item) => {
           item.body = item.body.replaceAll("\n", " ");
           return item;
         });
 
         this.insertMoreItems()
+        this.listAux = this.firstLetterUpperCase(this.listAux)
         this.displayItems(this.listAux, listContainer);
-
-
-
       });
   }
 
@@ -120,6 +118,7 @@ class List extends HTMLElement {
     for (let i = this.start; i <= this.end; i++) {
       this.listAux.push(this.listElements[i]);
     }
+
     this.start = this.end + 1;
     this.end = this.end + 40;
   }
@@ -128,54 +127,68 @@ class List extends HTMLElement {
     const listContainer = this.shadow.querySelector("#list");
 
     const searchValueLower = this.searchValue.toLowerCase();
-    const regex = new RegExp(`(${searchValueLower})`, 'gi');
-
-    const filtered = this.listElements.filter((item) => {
+    
+    let filtered = this.listElements.filter((item) => {
+      /*
+          1 - E-mail  
+          2 - Título
+          3 - Descrição
+      */
       if (this.filterOption === 1) {
-        return item.email.toLowerCase().includes(searchValueLower);
+        return item.email.toLowerCase().includes(searchValueLower)
+
       } else if (this.filterOption === 2) {
-        return item.name.toLowerCase().includes(searchValueLower);
+        return item.name.toLowerCase().includes(searchValueLower)
+
       } else if (this.filterOption === 3) {
-        return item.body.toLowerCase().includes(searchValueLower);
+        return item.body.toLowerCase().includes(searchValueLower)
+
       }
       return false
     })
-    .map((item) => {
-        
-      if (this.filterOption === 1) {
-        return {
-          email: item.email.replace(regex, '<span class="highlight">$1</span>'),
-          name: item.name,
-          body: item.body
-        };
+    
+    filtered = this.addHighlight(filtered)
 
-      } else if (this.filterOption === 2) {
-        return {
-          email: item.email,
-          name: item.name.replace(regex, '<span class="highlight">$1</span>'),
-          body: item.body
-        };
-      } else if (this.filterOption === 3) {
-        return {
-          email: item.email,
-          name: item.name,
-          body: item.body.replace(regex, '<span class="highlight">$1</span>'),
-        };
-      }
-
-    });
-   
     const visibleItems = filtered.slice(0, this.start);
     this.displayItems(visibleItems, listContainer);
 
-    if (visibleItems.length == 0) {
+    this.managerOutPutSearch(visibleItems)
+  }
+
+  addHighlight(data) {
+    const searchValueLower = this.searchValue.toLowerCase();
+    const regex = new RegExp(`(${searchValueLower})`, 'gi');
+
+    return data.map((item) => {
+      if (this.filterOption === 1) {
+        return { 
+          email: item.email.replace(regex, '<span class="highlight">$1</span>'), name: item.name, body: item.body
+        }
+      } else if (this.filterOption === 2) {
+        return { 
+          email: item.email, name: item.name.replace(regex, '<span class="highlight">$1</span>'), body: item.body
+        }
+      } else if (this.filterOption === 3) {
+        return { 
+          email: item.email, name: item.name, body: item.body.replace(regex, '<span class="highlight">$1</span>')
+        }
+      }
+
+    })
+  }
+
+  managerOutPutSearch(data) {
+    if (data.length == 0) {
       this.shadow.querySelector("#messageSearch").style.display = "flex";
       this.shadow.querySelector("#list").style.height = "0px";
+
     } else {
       this.shadow.querySelector("#messageSearch").style.display = "none";
       this.shadow.querySelector("#list").style.height = "400px";
+
     }
   }
+
 
   clearInput(){
     this.shadow.querySelector("#search").value = ""
@@ -183,18 +196,17 @@ class List extends HTMLElement {
     this.searchWords()
   }
 
-  filterDatas(data) {
+  firstLetterUpperCase(data) {
+
     const filtered = data.map((item) => {
       item.email = item.email;
-      item.name =
-        String(item.name).charAt(0).toUpperCase() +
-        String(item.name).toLowerCase().slice(1);
-      item.body =
-        String(item.body).charAt(0).toUpperCase() +
-        String(item.body).toLowerCase().slice(1);
+      item.name = String(item.name).charAt(0).toUpperCase() + String(item.name).toLowerCase().slice(1);
+      item.body = String(item.body).charAt(0).toUpperCase() + String(item.body).toLowerCase().slice(1);
       return item;
     });
+    
     return filtered;
+  
   }
 
   displayItems(items, container) {
@@ -209,7 +221,7 @@ class List extends HTMLElement {
 
       const email = document.createElement("h6");
       email.className = "card-subtitle mb-2 text-muted";
-      email.innerHTML = `E-mail: ${item.email}`;
+      email.innerHTML = item.email
 
       const name = document.createElement("h5");
       name.className = "card-title";
@@ -224,12 +236,14 @@ class List extends HTMLElement {
       cardBody.appendChild(body);
       card.appendChild(cardBody);
       container.appendChild(card);
+
     });
   }
 
 
   addInfiniteScrollListener() {
     const wrap = this.shadow.querySelector("#list");
+
     wrap.addEventListener("scroll", () => {
       if (wrap.scrollTop + wrap.clientHeight >= wrap.scrollHeight - 10) {
         if (this.listAux.length > 500) {
@@ -238,7 +252,8 @@ class List extends HTMLElement {
         this.insertMoreItems()
 
         const listContainer = this.shadow.querySelector("#list");
-        const filtered = this.filterDatas(this.listAux);
+        const filtered = this.firstLetterUpperCase(this.listAux);
+
         this.displayItems(filtered, listContainer);
         this.searchWords()
       }
