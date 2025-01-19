@@ -141,6 +141,9 @@ class List extends HTMLElement {
           const searchValue = searchInput.value.toLowerCase();
           console.log("Valor da pesquisa:", searchValue);
 
+          const searchValueLower = searchValue.toLowerCase();
+          const regex = new RegExp(`(${searchValueLower})`, 'gi');
+
           const filtered = this.listElements.filter((item) => {
             if (this.filterOption === 1) {
               return item.email.toLowerCase().includes(searchValue);
@@ -149,7 +152,31 @@ class List extends HTMLElement {
             } else if (this.filterOption === 3) {
               return item.body.toLowerCase().includes(searchValue);
             }
-          });
+            return false
+          })
+            .map((item) => {
+              if (this.filterOption === 1) {
+                return {
+                  email: item.email.replace(regex, '<span class="highlight">$1</span>'),
+                  name: item.name,
+                  body: item.body
+                };
+
+              } else if (this.filterOption === 2) {
+                return {
+                  email: item.email,
+                  name: item.name.replace(regex, '<span class="highlight">$1</span>'),
+                  body: item.body
+                };
+              } else if (this.filterOption === 3) {
+                return {
+                  email: item.email,
+                  name: item.name,
+                  body: item.body.replace(regex, '<span class="highlight">$1</span>'),
+                };
+              }
+
+            });
 
           console.log("Itens filtrados:", filtered);
 
@@ -192,15 +219,15 @@ class List extends HTMLElement {
 
       const email = document.createElement("h6");
       email.className = "card-subtitle mb-2 text-muted";
-      email.textContent = `E-mail: ${item.email}`;
+      email.innerHTML = `E-mail: ${item.email}`;
 
       const name = document.createElement("h5");
       name.className = "card-title";
-      name.textContent = item.name;
+      name.innerHTML = item.name;
 
       const body = document.createElement("p");
       body.className = "card-text";
-      body.textContent = item.body;
+      body.innerHTML = item.body;
 
       cardBody.appendChild(email);
       cardBody.appendChild(name);
@@ -209,6 +236,7 @@ class List extends HTMLElement {
       container.appendChild(card);
     });
   }
+
 
   addInfiniteScrollListener() {
     const wrap = this.shadow.querySelector("#list");

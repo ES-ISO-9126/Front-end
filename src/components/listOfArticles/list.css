@@ -15,7 +15,10 @@
   margin: 20px auto;
   max-width: 800px;
 }
-
+.highlight {
+  background-color: rgb(247, 247, 117);
+  font-weight: bold;
+}
 .list-container {
   margin: 0 auto;
   max-width: 100%;
