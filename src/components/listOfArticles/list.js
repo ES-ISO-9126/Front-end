@@ -135,9 +135,12 @@ class List extends HTMLElement {
           this.shadow.querySelector("#list").style.height = "0px";
           return;
         }
-        this.listElements = data;
+        this.listElements = data.map((item) => {
+          // Substitui todas as quebras de linha "\n" por uma string vazia
+          item.body = item.body.replaceAll("\n", " ");
+          return item;
+        });
 
-        
         this.insertMoreItems()
         this.displayItems(this.listAux, listContainer);
 
@@ -161,37 +164,18 @@ class List extends HTMLElement {
 
     const filtered = this.listElements.filter((item) => {
       if (this.filterOption === 1) {
-        return item.email.toLowerCase().includes(this.searchValue);
+        return item.email.toLowerCase().includes(searchValueLower);
       } else if (this.filterOption === 2) {
-        return item.name.toLowerCase().includes(this.searchValue);
+        return item.name.toLowerCase().includes(searchValueLower);
       } else if (this.filterOption === 3) {
-        return item.body.toLowerCase().includes(this.searchValue);
+        return item.body.toLowerCase().includes(searchValueLower);
       }
       return false
     })
-      .map((item) => {
-        
-        if (this.filterOption === 1) {
-          return {
-            email: item.email.replace(regex, '<span class="highlight">$1</span>'),
-            name: item.name,
-            body: item.body
-          };
-
-        } else if (this.filterOption === 2) {
-          return {
-            email: item.email,
-            name: item.name.replace(regex, '<span class="highlight">$1</span>'),
-            body: item.body
-          };
-        } else if (this.filterOption === 3) {
-          return {
-            email: item.email,
-            name: item.name,
-            body: item.body.replace(regex, '<span class="highlight">$1</span>'),
-          };
-        }
-
+   
+      console.log("filtered ", filtered)
+      filtered.forEach((item) => {
+        console.log("item ", item.body)
       });
 
 
