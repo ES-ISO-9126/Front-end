@@ -11,12 +11,11 @@ class List extends HTMLElement {
     super();
 
     this.shadow.appendChild(this.createHTML());
-    this.createStyles(
-      "src/components/listOfArticles/list.css",
-      "https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css"
-    );
+    this.createStyles("src/components/listOfArticles/list.css","https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css","src/components/listOfArticles/list-responsive.css");
+    
     this.fetchAndDisplayData();
     this.addInfiniteScrollListener();
+    
     const searchInput = this.shadow.querySelector("#search");
     searchInput.addEventListener("input", () => {
       const searchValue = searchInput.value.toLowerCase();
@@ -29,64 +28,33 @@ class List extends HTMLElement {
 
   createHTML() {
     const template = `
-       <div class="container mt-4">
-  <div class="search-and-filters d-flex align-items-center mb-4">
-    <div class="search-bar">
-      <input
-        type="text"
-        id="search"
-        class="form-control"
-        placeholder="Search"
-        aria-label="Search"
-      />
-    </div>
-    <div class="filters ms-4 d-flex">
-      <div class="form-check me-3">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault1"
-          value="1"
-        />
-        <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
-      </div>
-      <div class="form-check me-3">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault2"
-          value="2"
-          checked
-        />
-        <label class="form-check-label" for="flexRadioDefault2">Título</label>
-      </div>
-      <div class="form-check">
-        <input
-          class="form-check-input"
-          type="radio"
-          name="flexRadioDefault"
-          id="flexRadioDefault3"
-          value="3"
-        />
-        <label class="form-check-label" for="flexRadioDefault3"
-          >Descrição</label
-        >
-      </div>
-    </div>
-  </div>
+ <div class="container mt-4">
+        <div class="search-and-filters d-flex align-items-center mb-4">
+            <div class="search-bar">
+                <input type="text" id="search" class="form-control" placeholder="Search" aria-label="Search" />
+            </div>
+            <div class="filters ms-4 d-flex">
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault1"value="1" />
+                    <label class="form-check-label" for="flexRadioDefault1">E-mail</label>
+                </div>
+                <div class="form-check me-3">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault2"value="2" checked />
+                    <label class="form-check-label" for="flexRadioDefault2">Título</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="flexRadioDefault" id="flexRadioDefault3"value="3" />
+                    <label class="form-check-label" for="flexRadioDefault3">Descrição</label>
+                </div>
+            </div>
+        </div>
 
-  <div id="list" class="list-container">
-    <!-- Items will be dynamically added here -->
+        <div id="list" class="list-container"></div>
+        <div class="messageError">
+            <h3 id="messageData">Houve falha ao buscar os dados. Tente novamente mais tarde.</h3>
+            <h3 id="messageSearch">Nenhum item encontrado.</h3>
+        </div>
   </div>
-  <div class="messageError">
-      <h3 id="messageData">
-        Houve falha ao buscar os dados. Tente novamente mais tarde.
-      </h3>
-      <h3 id="messageSearch">Nenhum item encontrado.</h3>
-    </div>
-</div>
 
       `;
 
@@ -136,7 +104,6 @@ class List extends HTMLElement {
           return;
         }
         this.listElements = data.map((item) => {
-          // Substitui todas as quebras de linha "\n" por uma string vazia
           item.body = item.body.replaceAll("\n", " ");
           return item;
         });
@@ -159,6 +126,7 @@ class List extends HTMLElement {
 
   searchWords() {
     const listContainer = this.shadow.querySelector("#list");
+
     const searchValueLower = this.searchValue.toLowerCase();
     const regex = new RegExp(`(${searchValueLower})`, 'gi');
 
@@ -197,12 +165,6 @@ class List extends HTMLElement {
 
     });
    
-      console.log("filtered ", filtered)
-      filtered.forEach((item) => {
-        console.log("item ", item.body)
-      });
-
-
     const visibleItems = filtered.slice(0, this.start);
     this.displayItems(visibleItems, listContainer);
 
