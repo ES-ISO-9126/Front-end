@@ -139,7 +139,7 @@ class List extends HTMLElement {
           return item;
         });
 
-        this.insertMoreItems()
+        this.insertMoreItems();
         this.displayItems(this.listAux, listContainer);
       });
   }
@@ -165,13 +165,13 @@ class List extends HTMLElement {
       } else if (this.filterOption === 3) {
         return item.body.toLowerCase().includes(searchValueLower);
       }
-      return false
-    })
-   
-      console.log("filtered ", filtered)
-      filtered.forEach((item) => {
-        console.log("item ", item.body)
-      });
+      return false;
+    });
+
+    console.log("filtered ", filtered);
+    filtered.forEach((item) => {
+      console.log("item ", item.body);
+    });
 
     const visibleItems = filtered.slice(0, this.start);
     this.displayItems(visibleItems, listContainer);
